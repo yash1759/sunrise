@@ -2,50 +2,28 @@
 
 import { useState } from 'react';
 import Sidebar from './components/Sidebar';
-import {
-  Apple,
-  Spotify,
-  Youtube,
-  Instagram,
-  Music2 as Tiktok, // Lucide doesn't have TikTok, so we’ll alias Music2
-  Linkedin,
-  Facebook,
-  ShoppingCart
-} from "lucide-react";
 
 export default function Page() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-black text-white">
-      {/* Background video (bottom layer) */}
-      <video
-        className="absolute inset-0 h-full w-full object-cover z-0"
-        src="/vid.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
+      {/* Background image with zoom-in on load */}
+      <img
+        className="bg-zoom absolute inset-0 h-full w-full object-cover z-0 will-change-transform"
+        src="/backk.jpg"
+        alt="Background"
       />
 
-      {/* Dark overlay (middle layer) */}
-      <div className="absolute inset-0 bg-black/30 z-10" />
+      {/* Gray transparent overlay */}
+      <div className="absolute inset-0 bg-[#4f52577a] z-10" />
 
-      {/* Top bar (top layer) */}
-      <header className="relative z-30 flex items-start justify-between px-5 sm:px-8 pt-6">
-        <div className="flex flex-col select-none">
-          <span className="text-[26px] font-extrabold tracking-wider leading-none">
-            GLOBAL <span className="font-black">RECORDS</span>
-          </span>
-          <span className="text-[10px] uppercase tracking-[0.35em] mt-1 opacity-80">
-            Sounds Different
-          </span>
-        </div>
-
+      {/* Top bar (menu icon) */}
+      <header className="absolute top-6 right-6 z-30">
         <button
           aria-label="Open Menu"
           onClick={() => setMenuOpen(true)}
-          className="group relative h-10 w-10 flex flex-col justify-center items-center gap-1 absolute"
+          className="flex flex-col justify-center items-center gap-1"
         >
           <span className="h-[2px] w-7 bg-white" />
           <span className="h-[2px] w-7 bg-white" />
@@ -53,30 +31,99 @@ export default function Page() {
         </button>
       </header>
 
-      {/* Footer made absolute (top layer) */}
-<footer className="absolute inset-x-0 bottom-0 z-30 pointer-events-none">
-  {/* Social icons */}
-  <div className="absolute left-4 sm:left-6 bottom-10 flex items-center gap-6 opacity-95 text-white pointer-events-auto">
-    <Apple className="w-8 h-8 stroke-[2.5]" />
-    <Youtube className="w-8 h-8 stroke-[2.5]" />
-    <Instagram className="w-8 h-8 stroke-[2.5]" />
-    <Tiktok className="w-8 h-8 stroke-[2.5]" />
-    <Linkedin className="w-8 h-8 stroke-[2.5]" />
-    <Facebook className="w-8 h-8 stroke-[2.5]" />
-  </div>
+      {/* Centered content */}
+      <div className="relative z-20 h-full flex flex-col items-center justify-center">
+        {/* Top pair */}
+        <div className="grid grid-cols-2 gap-x-40 mb-6 w-[41%]">
+          <a
+            href="#events"
+            className="btn btn--blue glass w-64 h-12 flex items-center justify-center animate-btn-wipe anim-delay-300"
+          >
+            EVENTS
+          </a>
+          <a
+            href="#artists"
+            className="btn glass w-64 h-12 flex items-center justify-center animate-btn-wipe anim-delay-750"
+          >
+            ARTISTS
+          </a>
+        </div>
 
-  {/* Shop CTA */}
-  <a
-    href="#shop"
-    className="absolute right-6 bottom-10 inline-flex items-center gap-3 text-lg tracking-widest uppercase text-white pointer-events-auto"
-  >
-    <span className="opacity-90">Shop</span>
-    <ShoppingCart className="w-7 h-7 stroke-[2.5]" />
-  </a>
-</footer>
-      {/* Slide-in sidebar (sits above everything when open) */}
-      <Sidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
+        {/* Logo */}
+        <div className="flex justify-center my-6">
+          <img src="/logo.png" alt="Logo" className="h-24 w-24 object-contain" />
+        </div>
+
+        {/* Bottom pair */}
+        <div className="grid grid-cols-2 gap-x-40 mt-6 w-[41%]">
+          <a
+            href="#calendar"
+            className="btn glass w-64 h-12 flex items-center justify-center animate-btn-wipe anim-delay-1000"
+          >
+            CALENDAR
+          </a>
+          <a
+            href="#contact"
+            className="btn glass w-64 h-12 flex items-center justify-center animate-btn-wipe anim-delay-1250"
+          >
+            CONTACT
+          </a>
+        </div>
+      </div>
+
+      {/* Sidebar */}
+      {menuOpen && (
+        <Sidebar
+          open={true}
+          onClose={() => setMenuOpen(false)}
+        />
+      )}
+
+      {/* Animations & helpers */}
+      <style jsx global>{`
+        /* --- Background zoom-in --- */
+        .bg-zoom {
+          animation: bg-zoom-in 6s ease-out both;
+          transform-origin: center;
+        }
+        @keyframes bg-zoom-in {
+          0% { transform: scale(1); }
+          100% { transform: scale(1.10); }
+        }
+
+        /* --- Button base --- */
+        .glass { background-color: rgba(255, 255, 255, 0.3); color: #000; }
+        .btn {
+          position: relative;
+          overflow: hidden;
+          text-align: center;
+          font-size: 1.2rem;
+          letter-spacing: .12em;
+          text-transform: uppercase;
+          font-family: 'Orbitron', sans-serif;
+          transition: color .2s ease, background-color .2s ease;
+          /* default wipe color (yellow) */
+          --wipe-color: #ffd54a;
+        }
+        .btn:hover { color: #fff; }
+
+        /* EVENTS button uses blue for its wipe */
+        .btn--blue { --wipe-color: #7f40f1; } /* Tailwind blue-500 */
+
+        /* One-time wipe using the variable color, then back to normal */
+        .animate-btn-wipe { animation: btn-wipe-seq 1.1s ease-out forwards; }
+        @keyframes btn-wipe-seq {
+          0%   { background-color: var(--wipe-color); }
+          70%  { background-color: var(--wipe-color); }
+          100% { background-color: rgba(255, 255, 255, 0.3); }
+        }
+
+        /* Animation delay helpers */
+        .anim-delay-300  { animation-delay: 300ms; }
+        .anim-delay-750  { animation-delay: 750ms; }
+        .anim-delay-1000 { animation-delay: 1000ms; }
+        .anim-delay-1250 { animation-delay: 1250ms; }
+      `}</style>
     </main>
   );
 }
-

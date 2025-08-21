@@ -1,62 +1,69 @@
-"use client"
+"use client";
 import { useEffect } from "react";
 
 export default function Sidebar({ open, onClose }) {
-  // lock scroll when open
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = open ? "hidden" : "";
     return () => (document.body.style.overflow = "");
   }, [open]);
 
   const items = [
-    { label: "HOME", href: "#" },
-    { label: "ABOUT", href: "#about" },
-    { label: "OUR ARTISTS", href: "#artists" },
-    { label: "SHOP", href: "#shop" },
-    { label: "CAREERS", href: "#careers" },
+    { label: "EVENTS", href: "#events" },
+    { label: "ARTISTS", href: "#artists" },
+    { label: "CALENDAR", href: "#calendar" },
     { label: "CONTACT", href: "#contact" },
   ];
 
   return (
-    <div className={`fixed inset-0 z-50 flex justify-end ${open ? "pointer-events-auto" : "pointer-events-none"}`} aria-hidden={!open}>
+    <div
+      className={`fixed inset-0 z-50 flex justify-end ${
+        open ? "pointer-events-auto" : "pointer-events-none"
+      }`}
+      aria-hidden={!open}
+    >
       {/* Backdrop */}
       <div
-        className={`absolute inset-0 bg-black/50 transition-opacity duration-300  cursor-pointer ${open ? "opacity-100" : "opacity-0"}`}
+        className={`absolute inset-0 bg-black/50 transition-opacity duration-300 cursor-pointer ${
+          open ? "opacity-100" : "opacity-0"
+        }`}
         onClick={onClose}
       />
 
-      {/* Panel (slide from right) */}
+      {/* Panel (right) */}
       <aside
-        className={`fixed top-0 right-0 h-full w-[78vw] max-w-[449px] bg-[#111] text-white shadow-2xl transition-transform duration-300 ease-out will-change-transform ${
+        className={`fixed top-0 right-0 h-full w-[70vw] max-w-[320px] bg-white text-black shadow-2xl transition-transform duration-300 ease-out will-change-transform overflow-hidden ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
         role="dialog"
         aria-label="Main menu"
       >
-        {/* Close button */}
+        {/* Yellow wipe: only on OPEN, bounded to panel width */}
+        {open && (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-10 bg-[#ffd54a] animate-[sidebar-wipe_700ms_cubic-bezier(0.2,0.7,0.2,1)_forwards]"
+          />
+        )}
+
+        {/* Close button (kept above sweep) */}
         <button
+          type="button"
           onClick={onClose}
           aria-label="Close menu"
-          className="absolute right-6 top-6 h-10 w-10 grid place-items-center group"
+          className="absolute right-6 top-6 h-12 w-12 grid place-items-center cursor-pointer z-50"
         >
-          <span className="relative block h-6 w-6 before:content-[''] after:content-[''] before:absolute before:inset-0 after:absolute after:inset-0 before:rotate-45 after:-rotate-45 before:bg-[#c4b183] after:bg-[#c4b183] before:h-[2px] after:h-[2px] before:top-1/2 after:top-1/2 before:w-full after:w-full" />
+          <span className="relative block h-8 w-8 before:content-[''] after:content-[''] before:absolute before:inset-0 after:absolute after:inset-0 before:rotate-45 after:-rotate-45 before:bg-black after:bg-black before:h-[2px] after:h-[2px] before:top-1/2 after:top-1/2 before:w-full after:w-full" />
         </button>
 
         {/* Menu list */}
-        <nav className="h-full overflow-y-auto">
-          <ul className="mt-24 px-12 pb-16 space-y-8">
-            {items.map((item, idx) => (
+        <nav className="relative z-40 h-full flex flex-col justify-center items-center">
+          <ul className="space-y-12 text-center">
+            {items.map((item) => (
               <li key={item.label}>
                 <a
                   href={item.href}
                   onClick={onClose}
-                  className={`block text-2xl sm:text-2xl md:text-3xl tracking-widest uppercase ${
-                    idx === 0 ? "text-[#c4b183]" : "text-white"
-                  } hover:text-[#c4b183] transition-colors`}
+                  className="block text-3xl sm:text-4xl font-['Orbitron',_sans-serif] tracking-wider hover:text-gray-500 transition-colors"
                 >
                   {item.label}
                 </a>
@@ -65,6 +72,15 @@ export default function Sidebar({ open, onClose }) {
           </ul>
         </nav>
       </aside>
+
+      {/* Keyframes: wipe fills the whole sidebar then exits right, constrained by clip-path */}
+      <style jsx global>{`
+        @keyframes sidebar-wipe {
+          0%   { clip-path: inset(0 100% 0 0); opacity: 1; }
+          55%  { clip-path: inset(0 0 0 0);   opacity: 1; }
+          100% { clip-path: inset(0 0 0 100%);opacity: 0; }
+        }
+      `}</style>
     </div>
   );
 }
